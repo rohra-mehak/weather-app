@@ -144,7 +144,9 @@ class WeatherApp:
         """
 
         st.title("Hello! I'm Windy the weather bot")
-        st.image(os.path.join(os.getcwd(), "app", "static", "weather-app-icon.jpg"), width=50)
+        logo_path = os.path.join(os.getcwd(), "app", "static", "weather-app-icon.jpg")
+        if os.path.exists(logo_path):           
+            st.image(logo_path, width=50)
         query = st.chat_input("Please enter your weather related query with location")
         if query:
             self.handle_user_query(query)

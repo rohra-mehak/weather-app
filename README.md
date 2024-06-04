@@ -37,8 +37,8 @@ You can try queries such as:
      d. Current temperature in New York
 
 ### Output: 
-The chatbot will process your query and display the relevant weather information, including temperature,wind speed, and weather condition.
-Fore more information on forecasts and variantions in trends. Click on "See Daily Forecasts"
+The chatbot will process your query , determine a location and display the relevant weather information for that location including temperature,wind speed, and weather condition.
+Fore more information on forecasts and variantions in trends, detailed information more tabs can be viewed.
 
 ## Features
 1. Processes general weather related user queries with a location

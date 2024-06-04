@@ -45,7 +45,7 @@ class WeatherLocationQueryHandler:
 
 if __name__ == "__main__":
     # Example usage
-    query = input("Hey,Im windy, enter you weather query with location?\n")
+    query = input("Hey, Im windy, enter you weather query with location?\n")
     bot = WeatherLocationQueryHandler(query=query)
     response = bot.get_response()
     print(response)
