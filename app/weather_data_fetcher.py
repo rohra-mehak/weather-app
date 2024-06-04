@@ -19,7 +19,8 @@ class WeatherDataFetcher:
         Initializes WeatherDataFetcher with the specified location.
 
         Args:
-            location (str, optional): The location for which weather data is fetched. Defaults to 'New York'.
+            location (str, optional): The location for which weather data 
+            is fetched. Defaults to 'New York'.
         """
         self.location = location
         self.weather_data = None
@@ -35,7 +36,7 @@ class WeatherDataFetcher:
             self.daily_forecasts = [day for day in self.weather_data.daily_forecasts]
             self.hourly_forecasts = {day.date: [hourly_data for hourly_data in day.hourly_forecasts] for day in self.daily_forecasts}
     
-    
+
     def get_daily_forecasts(self):
         """
         Process the weather information associated with the daily
