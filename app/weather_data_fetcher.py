@@ -3,14 +3,14 @@ import asyncio
 import os
 import pandas as pd
 
-class WeatherFetcher:
-    def __init__(self, city_name='New York'):
-        self.city_name = city_name
+class WeatherDataFetcher:
+    def __init__(self, location='New York'):
+        self.location = location
         self.weather_data = None
 
     async def fetch_weather(self):
         async with python_weather.Client() as client:
-            self.weather_data = await client.get(location=self.city_name)
+            self.weather_data = await client.get(location=self.location)
 
     def get_temperature(self):
         return self.weather_data.temperature if self.weather_data else None
@@ -65,10 +65,7 @@ class WeatherFetcher:
 if __name__ == '__main__':
     if os.name == 'nt':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    city = input("enter city name")
-    weather = WeatherFetcher(city)
+    location = input("enter city name")
+    weather = WeatherDataFetcher(location)
     weather_data = asyncio.run(weather.get_weather())
     print(weather_data)
-    
-    # daily_forecasts = weather.get_daily_forecasts()
-    # print(daily_forecasts)

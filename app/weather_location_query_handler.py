@@ -3,12 +3,11 @@ import spacy
 # Load the medium-sized English model provided by spaCy
 nlp = spacy.load("en_core_web_md")
 
-class WeatherChatbot:
+class WeatherLocationQueryHandler:
     def __init__(self, query) -> None:
         """
-        Class to initialize the WeatherChatbot instance.
-
-
+        Class to initialize the WeatherLocationQueryHandler instance.
+        
         Parameters:
         query (str): The user query to be processed.
         """
@@ -16,7 +15,7 @@ class WeatherChatbot:
         self.weather_nlp = nlp("Weather conditions in a city ? sunny windy raining cloudy")
         self.query = query
     
-    def chatbot_response(self):
+    def get_response(self):
         """
         Validate a location and generate a response 
         based on the user query.
@@ -40,7 +39,7 @@ class WeatherChatbot:
                     else:
                         return "Something went wrong. Please try again"
                 else:
-                    return "Please include a city to check."
+                    return "Please include a location to check."
                 
         else:
             return "Sorry I don't understand that. Please rephrase your statement including the desired city location."
@@ -49,6 +48,6 @@ class WeatherChatbot:
 if __name__ == "__main__":
     # Example usage
     query = input("How can I help you ?\n")
-    bot = WeatherChatbot(query=query)
-    response = bot.chatbot_response()
+    bot = WeatherLocationQueryHandler(query=query)
+    response = bot.get_response()
     print(response)
