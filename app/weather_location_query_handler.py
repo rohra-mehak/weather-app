@@ -12,14 +12,14 @@ class WeatherLocationQueryHandler:
         query (str): The user query to be processed.
         """
         # Define the weather-related keywords using spaCy
-        self.weather_nlp = nlp("Weather conditions in a city ? sunny windy raining cloudy")
+        self.weather_nlp = nlp("Weather current temperature conditions in a city ? sunny windy raining cloudy")
         self.query = query
     
     def get_response(self):
         """
-        Validate a location and generate a response 
-        based on the user query.
-
+        process user query to check its relatedness with weather 
+        and extract location 
+       
         Returns:
         str: Response to the user query.
         """
@@ -28,26 +28,24 @@ class WeatherLocationQueryHandler:
         
         # Check if the user query is related to weather conditions in 
         # a location
-        if self.weather_nlp.similarity(statement) >= min_similarity:
-            
-            # Extract any geographical entities mentioned in the query
-            for ent in statement.ents:
-                if ent.label_ == "GPE":
-                    location = ent.text
-                    if location is not None:
-                        return location, f"Fetching weather for {location}"
-                    else:
-                        return "Something went wrong. Please try again"
-                else:
-                    return "Please include a location to check."
-                
-        else:
+        if not self.weather_nlp.similarity(statement) >= min_similarity:
             return "Sorry I don't understand that. Please rephrase your statement including the desired location."
-
+            
+        # Extract any geographical entities mentioned in the query
+        for ent in statement.ents:
+            if not ent.label_ == "GPE":
+                return "Please include a location to check for weather"
+            location = ent.text
+            if location is None:
+                return "Something went wrong. Please try again"
+            return location, f"Weather Information for {location}"
+        
+        return "Please include a location to check for weather"
+                
 
 if __name__ == "__main__":
     # Example usage
-    query = input("How can I help you ?\n")
+    query = input("Hey,Im windy, enter you weather query with location?\n")
     bot = WeatherLocationQueryHandler(query=query)
     response = bot.get_response()
     print(response)

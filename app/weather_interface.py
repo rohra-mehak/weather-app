@@ -7,7 +7,7 @@ import altair as alt
 
 class WeatherApp:
     """
-    WeatherApp class to display weather information and forecast.
+    WeatherApp class to display weather information and forecast  using streamlit.
     """
     def __init__(self):
         """
@@ -33,46 +33,77 @@ class WeatherApp:
         return weather_data
     
     
-    def display_weather_data(self):
+    def display_current_weather_data(self):
         """
-        Method to display weather data in widgets.
+        Method to display current weather data.
         """
-        with st.expander("See details", expanded=True):
-            st.write(f"Today is {self.data['description']}")
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                st.header(self.data["temperature"])
+        st.header(f"Today is {self.data['description']}", divider="gray")
+        with st.expander("View current weather details", expanded=True):
+            temperature_column, feels_like_column = st.columns(2)
+            with temperature_column:
+                st.header(f"{self.data['temperature']}°")
                 st.write("Temperature (C)")
                 
-            with col2:
-                st.header(self.data["feels_like"])
+            with feels_like_column:
+                st.header(f"{self.data['feels_like']}°")
                 st.write("Feels Like (C)")
-            col3, col4 = st.columns(2)
-            with col3:
+            visibility_column, wind_speed_column = st.columns(2)
+
+            with visibility_column:
                 st.header(self.data["visibility"])
                 st.write("Visibility (km)")
 
-            with col4:
+            with wind_speed_column:
                 st.header(self.data["wind_speed"])
                 st.write("Wind Speed (kmph)")
+    
+    def display_hourly_temperature_trend(self):
+        """
+        Method to display hourly temperature forecasts trend
+        of the retrieved daily forecasts
+        """
+        df = self.data["hourly_forecasts"]
+        with st.expander("View Hourly Temperature Trend", expanded=False):
+            chart = alt.Chart(df).mark_line().encode(
+            x='DateTime:T',
+            y='Temperature:Q',
+            color=alt.Color('yearmonthdate(Date):O', legend=alt.Legend(title="Date")),
+            tooltip=['DateTime:T', 'Temperature:Q']
+        ).properties(
+            title="Hourly Temperature Forecast",
+            width=700,
+            height=400
+        ).configure_axis(
+            labelAngle=45
+        )
+            st.altair_chart(chart, use_container_width=True)
+       
+    def display_hourly_weather_information(self):
+        """
+        Method to display hourly weather details in tabular format
+        """
+        df = self.data["hourly_forecasts"]
+        with st.expander("View Hourly Weather Details", expanded=False):
+            df_display = df.rename(columns={'Temperature': 'Temperature (°C)', 'DateTime': 'Date and Time', 'Humidity': 'Humidity (%)', 'Wind_Speed': 'Wind Speed (km/h)'})
+            st.write(df_display[['Date and Time','Temperature (°C)', 'Humidity (%)', 'Wind Speed (km/h)']].to_markdown(index=False))
 
-    def display_temperature_trend(self):
+    def display_temperature_comparison(self):
         """
-        Method to display temperature trend chart.
+        Method to display min and max temperature comparison for the coming days.
         """
-        with st.expander("See daily forecasts", expanded=False):
+        with st.expander("See Daily Temperature Spikes", expanded=False):
             df = self.data["daily_forecasts"]
             chart = alt.Chart(df, title='Temperature Data').mark_bar(opacity=1).encode(
                 column=alt.Column('Date:T', title="Date", spacing=60, header=alt.Header(labelOrient="bottom")),
                 x=alt.X('Temperature Variant', sort=["Highest Temperature", "Lowest Temperature", "Current Temperature"], axis=None),
-                y=alt.Y('value:Q', title='Temperature (C)'),
+                y=alt.Y('value:Q', title='Temperature (°C)'),
                 color=alt.Color('Temperature Variant'),
                 size=alt.value(30)
             ).configure_view(stroke='transparent')
 
             st.altair_chart(chart)
-    
+
+            
     def handle_response_from_queryhandler(self, response):
         """
         Method to handle response given by WeatherLocationQueryHanlder
@@ -80,15 +111,18 @@ class WeatherApp:
         Parameters:
         - response (str): response returned by WeatherLocationQueryHanlder
         """
-        if isinstance(response, tuple):
-            query_location, processor_response = response
-            st.write(processor_response)
-            self.data = self.get_weather_details_for_location(location=query_location)
-            if self.data:
-                        self.display_weather_data()
-                        self.display_temperature_trend()
-        else:
+        if not isinstance(response, tuple):
             st.warning(response)
+            return 
+        query_location, processor_response = response
+        st.write(f"### {processor_response}")
+        self.data = self.get_weather_details_for_location(location=query_location)
+        if self.data:
+                self.display_current_weather_data()
+                self.display_temperature_comparison()
+                self.display_hourly_temperature_trend()
+                self.display_hourly_weather_information()
+            
     
     def handle_user_query(self, query):
         """
@@ -97,21 +131,24 @@ class WeatherApp:
         Parameters:
         - query (str): the user query to be processed.
         """
-        if query:
-                response = WeatherLocationQueryHandler(query).get_response()
-                self.handle_response_from_queryhandler(response)            
-        else:
+        if not isinstance(query, str):
             st.warning("Please enter your weather related query with location")
-
-
+            return
+        response = WeatherLocationQueryHandler(query).get_response()
+        self.handle_response_from_queryhandler(response)            
+    
+            
     def main_window(self):
         """
         Method to display the main window of the weather app.
         """
+
         st.title("Hello! I'm Windy the weather bot")
         st.image(os.path.join(os.getcwd(), "app", "static", "weather-app-icon.jpg"), width=50)
         query = st.chat_input("Please enter your weather related query with location")
-        self.handle_user_query(query)
+        if query:
+            self.handle_user_query(query)
+        
 
 if __name__ == "__main__":
     app = WeatherApp()
