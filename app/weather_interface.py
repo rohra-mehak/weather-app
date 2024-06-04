@@ -1,8 +1,8 @@
 from app.weather_data_fetcher import WeatherDataFetcher
+from app.weather_location_query_handler import WeatherLocationQueryHandler
 import asyncio
 import os
 import streamlit as st
-from app.weather_location_query_handler import WeatherLocationQueryHandler
 import altair as alt
 
 class WeatherApp:

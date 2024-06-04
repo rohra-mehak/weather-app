@@ -7,7 +7,7 @@ class WeatherLocationQueryHandler:
     def __init__(self, query) -> None:
         """
         Class to initialize the WeatherLocationQueryHandler instance.
-        
+
         Parameters:
         query (str): The user query to be processed.
         """
@@ -23,26 +23,26 @@ class WeatherLocationQueryHandler:
         Returns:
         str: Response to the user query.
         """
-        # Process the user query using spaCy
         statement = nlp(self.query)
         min_similarity = 0.5
         
-        # Check if the user query is related to weather conditions
+        # Check if the user query is related to weather conditions in 
+        # a location
         if self.weather_nlp.similarity(statement) >= min_similarity:
             
             # Extract any geographical entities mentioned in the query
             for ent in statement.ents:
-                if ent.label_ == "GPE":  # GeoPolitical Entity
-                    city = ent.text
-                    if city is not None:
-                        return city, f"Fetching weather for {city}"
+                if ent.label_ == "GPE":
+                    location = ent.text
+                    if location is not None:
+                        return location, f"Fetching weather for {location}"
                     else:
                         return "Something went wrong. Please try again"
                 else:
                     return "Please include a location to check."
                 
         else:
-            return "Sorry I don't understand that. Please rephrase your statement including the desired city location."
+            return "Sorry I don't understand that. Please rephrase your statement including the desired location."
 
 
 if __name__ == "__main__":
