@@ -9,7 +9,6 @@ class WeatherApp:
     """
     WeatherApp class to display weather information and forecast.
     """
-
     def __init__(self):
         """
         Initialize WeatherApp class.
@@ -32,31 +31,11 @@ class WeatherApp:
         weather = WeatherDataFetcher(location= location)
         weather_data = asyncio.run(weather.get_weather())
         return weather_data
-
-    def main_window(self):
-        """
-        Method to display the main window of the weather app.
-        """
-        st.title("Hello! I'm Windy the weather bot")
-        st.image(os.path.join(os.getcwd(), "app", "static", "weather-app-icon.jpg"), width=50)
-        query = st.chat_input("Please enter your weather query")
-        
-        if query:
-            bot = WeatherLocationQueryHandler(query)
-            response = bot.get_response()
-            if isinstance(response, tuple):
-                city, processor_response = response
-                st.write(processor_response)
-                self.data = self.get_weather_details_for_location(city=city)
-                if self.data:
-                    self.display_weather_data()
-                    self.display_temperature_trend()
-            else:
-                st.warning(response)
-
+    
+    
     def display_weather_data(self):
         """
-        Method to display weather data.
+        Method to display weather data in widgets.
         """
         with st.expander("See details", expanded=True):
             st.write(f"Today is {self.data['description']}")
@@ -92,9 +71,47 @@ class WeatherApp:
                 size=alt.value(30)
             ).configure_view(stroke='transparent')
 
-            # Display the chart
             st.altair_chart(chart)
+    
+    def handle_response_from_queryhandler(self, response):
+        """
+        Method to handle response given by WeatherLocationQueryHanlder
 
+        Parameters:
+        - response (str): response returned by WeatherLocationQueryHanlder
+        """
+        if isinstance(response, tuple):
+            query_location, processor_response = response
+            st.write(processor_response)
+            self.data = self.get_weather_details_for_location(location=query_location)
+            if self.data:
+                        self.display_weather_data()
+                        self.display_temperature_trend()
+        else:
+            st.warning(response)
+    
+    def handle_user_query(self, query):
+        """
+        method to handle query from user input
+
+        Parameters:
+        - query (str): the user query to be processed.
+        """
+        if query:
+                response = WeatherLocationQueryHandler(query).get_response()
+                self.handle_response_from_queryhandler(response)            
+        else:
+            st.warning("Please enter your weather related query with location")
+
+
+    def main_window(self):
+        """
+        Method to display the main window of the weather app.
+        """
+        st.title("Hello! I'm Windy the weather bot")
+        st.image(os.path.join(os.getcwd(), "app", "static", "weather-app-icon.jpg"), width=50)
+        query = st.chat_input("Please enter your weather related query with location")
+        self.handle_user_query(query)
 
 if __name__ == "__main__":
     app = WeatherApp()
